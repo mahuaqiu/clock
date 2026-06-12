@@ -6,8 +6,7 @@
   "build": {
     "beforeBuildCommand": "",
     "beforeDevCommand": "",
-    "frontendDist": "../src",
-    "withGlobalTauri": true
+    "frontendDist": "../src"
   },
   "app": {
     "macOSPrivateApi": true,
