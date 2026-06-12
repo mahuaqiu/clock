@@ -9,7 +9,7 @@
         html, body {
             width: 100%;
             height: 100%;
-            background-color: transparent;
+            background-color: #ffffff;
             overflow: hidden;
             user-select: none;
             -webkit-user-select: none;
@@ -18,28 +18,68 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
         #clock {
             font-family: 'Courier New', 'Consolas', monospace;
-            color: #00ff88;
+            color: #000000;
             white-space: nowrap;
             letter-spacing: 0;
-            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5), 0 0 40px rgba(0, 255, 136, 0.2);
-            /* 整个时钟区域可拖拽窗口 */
+            text-shadow: none;
             cursor: default;
+        }
+        /* 关闭按钮 - 右上角，始终显示 */
+        #close-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: rgba(0, 0, 0, 0.08);
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        #close-btn:hover {
+            background: rgba(255, 0, 0, 0.15);
+            color: #ff0000;
         }
     </style>
 </head>
 <body>
     <div id="clock" data-tauri-drag-region></div>
+    <button id="close-btn" title="退出">✕</button>
     <script>
         const clockEl = document.getElementById('clock');
+        const closeBtn = document.getElementById('close-btn');
+
+        // 退出程序
+        closeBtn.addEventListener('click', () => {
+            // Tauri 2 调用方式
+            if (window.__TAURI__) {
+                window.__TAURI__.core.invoke('quit_app').catch(function(e) {
+                    console.error('invoke quit_app 失败:', e);
+                    // 备用：尝试关闭窗口
+                    if (window.__TAURI__.window) {
+                        window.__TAURI__.window.getCurrent().close();
+                    }
+                });
+            } else {
+                // 非 Tauri 环境
+                window.close();
+            }
+        });
 
         // 根据窗口尺寸动态计算字体大小
         function calcFontSize() {
             const w = window.innerWidth;
             const h = window.innerHeight;
-            // HH:MM:SS.mmm 共12字符，等宽字体宽度约0.6倍字号
             const byWidth = w / (12 * 0.62);
             const byHeight = h * 0.8;
             return Math.floor(Math.min(byWidth, byHeight));

@@ -1,9 +1,16 @@
 use tauri::Manager;
 
+// 退出应用命令
+#[tauri::command]
+fn quit_app(app: tauri::AppHandle) {
+    app.exit(0);
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .invoke_handler(tauri::generate_handler![quit_app])
         .setup(|app| {
             let window = app.get_webview_window("main").unwrap();
             window.set_title("毫秒时钟").unwrap();
