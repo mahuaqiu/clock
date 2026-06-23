@@ -3,11 +3,13 @@ use tauri::{Emitter, WebviewWindowBuilder};
 // 解析命令行参数
 fn parse_args() -> (Option<String>, Option<(f64, f64)>) {
     let args: Vec<String> = std::env::args().collect();
+    eprintln!("[DEBUG] 命令行参数: {:?}", args);
     let mut text = None;
     let mut center = None;
 
     for arg in &args {
         if let Some(value) = arg.strip_prefix("--text=") {
+            eprintln!("[DEBUG] 解析到 text: {}", value);
             text = Some(value.to_string());
         } else if let Some(value) = arg.strip_prefix("--center=") {
             let parts: Vec<&str> = value.split(',').collect();
@@ -59,9 +61,14 @@ pub fn run() {
                 let window = builder.build().expect("创建窗口失败");
                 window.set_title("毫秒时钟").unwrap();
 
-                // 发送 text 参数给前端
+                // 发送 text 参数给前端（延迟发送确保前端准备好）
                 if let Some(text) = &text_value {
-                    let _ = window.emit("setup-args", serde_json::json!({ "text": text }));
+                    let text_clone = text.clone();
+                    let window_clone = window.clone();
+                    std::thread::spawn(move || {
+                        std::thread::sleep(std::time::Duration::from_millis(500));
+                        let _ = window_clone.emit("setup-args", serde_json::json!({ "text": text_clone }));
+                    });
                 }
             }
 
