@@ -66,7 +66,6 @@ fn parse_args() -> (Option<String>, Option<(f64, f64)>) {
 
 ```rust
 use tauri::{Manager, Emitter};
-use tauri::LogicalPosition;
 
 // 在 setup 中
 let (text_value, center_value) = parse_args();
