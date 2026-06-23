@@ -50,14 +50,43 @@
             background: rgba(255, 0, 0, 0.15);
             color: #ff0000;
         }
+        /* 顶部文字 label */
+        #label {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Courier New', 'Consolas', monospace;
+            color: #000000;
+            text-align: center;
+            white-space: nowrap;
+            cursor: default;
+            display: none;
+        }
     </style>
 </head>
 <body>
+    <div id="label" data-tauri-drag-region></div>
     <div id="clock" data-tauri-drag-region></div>
     <button id="close-btn" title="退出">✕</button>
     <script>
         const clockEl = document.getElementById('clock');
         const closeBtn = document.getElementById('close-btn');
+        const labelEl = document.getElementById('label');
+
+        // 监听 Tauri 事件接收 setup-args
+        if (window.__TAURI__) {
+            window.__TAURI__.event.listen('setup-args', function(event) {
+                const payload = event.payload;
+                if (payload.text) {
+                    labelEl.textContent = payload.text;
+                    labelEl.style.display = 'block';
+                    // 触发重新计算字体大小
+                    clockEl.style.fontSize = calcFontSize() + 'px';
+                    labelEl.style.fontSize = (calcFontSize() * 0.6) + 'px';
+                }
+            });
+        }
 
         // 退出程序
         closeBtn.addEventListener('click', () => {
@@ -80,8 +109,15 @@
         function calcFontSize() {
             const w = window.innerWidth;
             const h = window.innerHeight;
+            let labelHeight = 0;
+
+            // 如果 label 可见，计算其高度
+            if (labelEl && labelEl.style.display !== 'none') {
+                labelHeight = labelEl.offsetHeight + 20; // 20px margin
+            }
+
             const byWidth = w / (12 * 0.62);
-            const byHeight = h * 0.8;
+            const byHeight = (h - labelHeight) * 0.8;
             return Math.floor(Math.min(byWidth, byHeight));
         }
 
@@ -93,6 +129,12 @@
             const ms = String(now.getMilliseconds()).padStart(3, '0');
             clockEl.textContent = h + ':' + m + ':' + s + '.' + ms;
             clockEl.style.fontSize = calcFontSize() + 'px';
+
+            // 更新 label 字体大小（60% 时钟字体大小）
+            if (labelEl && labelEl.textContent) {
+                labelEl.style.fontSize = (calcFontSize() * 0.6) + 'px';
+            }
+
             requestAnimationFrame(tick);
         }
 
