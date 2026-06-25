@@ -4,11 +4,11 @@
   "windows": ["main"],
   "permissions": [
     "core:default",
+    "core:event:default",
     "core:window:default",
     "core:window:allow-close",
     "core:window:allow-set-focus",
     "core:window:allow-start-dragging",
-    "core:window:allow-set-position",
-    "shell:default"
+    "core:window:allow-set-position"
   ]
 }

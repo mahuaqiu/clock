@@ -3,13 +3,11 @@ use tauri::{Emitter, WebviewWindowBuilder};
 // 解析命令行参数
 fn parse_args() -> (Option<String>, Option<(f64, f64)>) {
     let args: Vec<String> = std::env::args().collect();
-    eprintln!("[DEBUG] 命令行参数: {:?}", args);
     let mut text = None;
     let mut center = None;
 
     for arg in &args {
         if let Some(value) = arg.strip_prefix("--text=") {
-            eprintln!("[DEBUG] 解析到 text: {}", value);
             text = Some(value.to_string());
         } else if let Some(value) = arg.strip_prefix("--center=") {
             let parts: Vec<&str> = value.split(',').collect();
@@ -36,7 +34,6 @@ pub fn run() {
     let (text_value, center_value) = parse_args();
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![quit_app])
         .setup(move |app| {
             // 从配置获取窗口信息
